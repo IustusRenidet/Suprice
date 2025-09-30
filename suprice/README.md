@@ -214,4 +214,4 @@ Esto levanta el backend en `http://localhost:8080` y el frontend integrado de Hi
 - **Problemas con rutas Aspel**: revisa `application.properties` para definir rutas personalizadas o usa los selectores dinámicos de la interfaz que escanean los directorios por defecto.
 
 ## Licencia
-Proyecto proporcionado como ejemplo educativo. Ajusta la licencia según tus necesidades.
+(╬≖_≖) Aquí pondría mi licencia, si tan solo tuviera unaaaa (ง •̀_•́)ง
