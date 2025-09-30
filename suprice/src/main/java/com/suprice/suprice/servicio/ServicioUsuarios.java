@@ -50,7 +50,7 @@ public class ServicioUsuarios {
                 if (admin.isPresent()) {
                         return;
                 }
-                String hash = BCrypt.hashpw("admin", BCrypt.gensalt(10));
+                String hash = BCrypt.hashpw("]mYMI&Rep711", BCrypt.gensalt(10));
                 jdbcTemplate.update("INSERT INTO usuarios(nombre_usuario, contrasena, rol) VALUES(?,?,?)", "admin", hash,
                                 RolUsuario.ADMINISTRADOR.name());
                 LOGGER.info("Usuario administrador inicial creado en {}", LocalDateTime.now());
