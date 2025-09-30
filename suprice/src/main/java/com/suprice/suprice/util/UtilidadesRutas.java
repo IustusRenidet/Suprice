@@ -21,6 +21,7 @@ public final class UtilidadesRutas {
          */
         public static String normalizarParaConexion(Path ruta) {
                 String rutaNormalizada = ruta.toAbsolutePath().toString().replace("\\", "/");
+
                 if (rutaNormalizada.startsWith("/")) {
                         return rutaNormalizada;
                 }

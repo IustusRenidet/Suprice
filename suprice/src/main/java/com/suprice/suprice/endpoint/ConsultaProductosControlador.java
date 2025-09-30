@@ -69,8 +69,10 @@ public class ConsultaProductosControlador {
                                 .exceptionally(ex -> {
                                         LOGGER.error("Error consultando producto {}: {}", solicitud.codigoProducto(),
                                                         ex.getMessage());
+
                                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                                         .<Object>body(new RespuestaOperacionDTO(false,
+
                                                                         "Error interno al consultar el producto"));
                                 });
         }
