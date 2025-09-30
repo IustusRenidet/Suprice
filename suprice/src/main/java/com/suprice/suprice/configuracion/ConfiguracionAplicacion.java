@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.sqlite.SQLiteDataSource;
+import org.springframework.data.jdbc.core.dialect.DialectResolver;
 import org.springframework.data.relational.core.dialect.Dialect;
-import org.springframework.data.relational.core.dialect.SqliteDialect;
+import org.sqlite.SQLiteDataSource;
 
 /**
  * Configuración general de beans reutilizables dentro de la aplicación.
@@ -34,21 +34,20 @@ public class ConfiguracionAplicacion {
         }
 
         /**
+         * Bean para indicar el dialecto SQLite a Spring Data JDBC.
+         * Evita el error "Cannot determine a dialect for JdbcTemplate".
+         */
+        @Bean
+        public Dialect jdbcDialect(JdbcTemplate plantillaSqlite) {
+            return DialectResolver.getDialect(plantillaSqlite);
+        }
+
+        /**
          * Proporciona una {@link JdbcTemplate} ligada al origen de datos SQLite.
          *
          * @param dataSource origen de datos primario.
          * @return plantilla JDBC lista para uso.
          */
-
-        /**
-         * Bean para indicar el dialecto SQLite a Spring Data JDBC.
-         * Evita el error "Cannot determine a dialect for JdbcTemplate".
-         */
-        @Bean
-        public Dialect jdbcDialect() {
-            return SqliteDialect.INSTANCE;
-        }
-
         @Bean
         public JdbcTemplate plantillaSqlite(DataSource dataSource) {
             return new JdbcTemplate(dataSource);
