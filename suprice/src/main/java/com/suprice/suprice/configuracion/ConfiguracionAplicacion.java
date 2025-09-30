@@ -36,6 +36,15 @@ public class ConfiguracionAplicacion {
          *
          * @param dataSource origen de datos primario.
          * @return plantilla JDBC lista para uso.
+       
+               /**
+                * Bean para indicar el dialecto SQLite a Spring Data JDBC.
+                * Evita el error "Cannot determine a dialect for JdbcTemplate".
+                */
+               @Bean
+               public Dialect jdbcDialect() {
+                       return SqliteDialect.INSTANCE;
+               }
          */
         @Bean
         public JdbcTemplate plantillaSqlite(DataSource dataSource) {
