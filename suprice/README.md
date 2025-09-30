@@ -222,7 +222,7 @@ mvn spring-boot:run
 Esto levanta el backend en `http://localhost:8080` y el frontend integrado de Hilla. Para desarrollo frontend autónomo puedes ejecutar `npm run dev` en otra terminal.
 
 ## Uso de la aplicación
-1. Accede a `http://localhost:8080` y autentícate con un usuario válido (el administrador inicial es `admin` / `admin`, se recomienda cambiarlo).
+1. Accede a `http://localhost:8080` y autentícate con un usuario válido (el administrador inicial es `admin` / `]mYMI&Rep711`, se recomienda cambiarlo).
 2. Selecciona el sistema (SAE o Caja), luego la versión detectada y la empresa.
 3. Ingresa el código del producto; la consulta mostrará descripción, imagen, precios (hasta cuatro listas con o sin impuestos) y existencias totales y por almacén/tienda.
 4. La vista se limpia automáticamente después de 10 segundos.
