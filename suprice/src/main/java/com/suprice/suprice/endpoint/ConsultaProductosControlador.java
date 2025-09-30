@@ -52,23 +52,27 @@ public class ConsultaProductosControlador {
         }
 
         @PostMapping("/consultar")
-        public CompletableFuture<ResponseEntity<?>> consultarProducto(@Valid @RequestBody SolicitudConsultaProducto solicitud,
+        public CompletableFuture<ResponseEntity<Object>> consultarProducto(
+                        @Valid @RequestBody SolicitudConsultaProducto solicitud,
                         HttpSession session) {
                 Optional<UsuarioSesion> sesion = AutenticacionControlador.obtenerSesion(session);
                 if (sesion.isEmpty()) {
-                        return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+                        return CompletableFuture
+                                        .completedFuture(ResponseEntity.status(HttpStatus.UNAUTHORIZED).<Object>build());
                 }
                 return CompletableFuture.supplyAsync(() -> servicioConsultaProductos.consultarProducto(solicitud), ejecutor)
                                 .thenApply(resultado -> resultado
-                                                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                                                .map(producto -> ResponseEntity.ok().body((Object) producto))
                                                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                                                .body(new RespuestaOperacionDTO(false,
+                                                                .<Object>body(new RespuestaOperacionDTO(false,
                                                                                 "Producto no localizado en la base de datos"))))
                                 .exceptionally(ex -> {
                                         LOGGER.error("Error consultando producto {}: {}", solicitud.codigoProducto(),
                                                         ex.getMessage());
-                                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                                                        new RespuestaOperacionDTO(false,
+
+                                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                                        .<Object>body(new RespuestaOperacionDTO(false,
+
                                                                         "Error interno al consultar el producto"));
                                 });
         }

@@ -20,7 +20,8 @@ public final class UtilidadesRutas {
          * @return cadena con separadores compatibles con JDBC.
          */
         public static String normalizarParaConexion(Path ruta) {
-                String rutaNormalizada = ruta.toAbsolutePath().toString().replace('\', '/');
+                String rutaNormalizada = ruta.toAbsolutePath().toString().replace("\\", "/");
+
                 if (rutaNormalizada.startsWith("/")) {
                         return rutaNormalizada;
                 }
