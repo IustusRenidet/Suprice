@@ -190,6 +190,26 @@ mvn clean install
 ```
 El build empaqueta el backend con Spring Boot e incluye los recursos generados en el paso anterior.
 
+### Empaquetado final
+
+Para generar el artefacto distribuible ejecuta el ciclo de empaquetado de Maven:
+
+```bash
+mvn clean package
+```
+
+Este comando produce `target/suprice-0.0.1-SNAPSHOT.jar`. Gracias a `spring-boot-maven-plugin`, el JAR incluye:
+
+- El backend Spring Boot con el servidor embebido (Tomcat) listo para ejecutarse con `java -jar`.
+- Los recursos frontend optimizados que se copiaron desde `target/frontend` al directorio `BOOT-INF/classes/META-INF/resources/` durante el empaquetado.
+
+Con el archivo generado puedes desplegar la aplicación en cualquier entorno con JDK 17 disponible:
+
+```bash
+java -jar target/suprice-0.0.1-SNAPSHOT.jar
+```
+
+
 Si deseas omitir pruebas automáticas (no definidas por defecto), puedes usar:
 ```bash
 mvn clean install -DskipTests
