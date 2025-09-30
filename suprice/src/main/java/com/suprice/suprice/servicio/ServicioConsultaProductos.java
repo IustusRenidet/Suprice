@@ -23,7 +23,6 @@ import com.suprice.suprice.modelo.ExistenciaDetalleDTO;
 import com.suprice.suprice.modelo.PrecioProductoDTO;
 import com.suprice.suprice.modelo.ProductoConsultadoDTO;
 import com.suprice.suprice.modelo.SolicitudConsultaProducto;
-import com.suprice.suprice.modelo.TipoSistemaAspel;
 import com.suprice.suprice.util.UtilidadesImpuestos;
 import com.suprice.suprice.util.UtilidadesRutas;
 
