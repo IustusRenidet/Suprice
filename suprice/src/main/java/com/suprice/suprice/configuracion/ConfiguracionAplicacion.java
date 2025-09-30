@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.data.jdbc.repository.config.DialectResolver;
+import org.springframework.data.jdbc.core.dialect.DialectResolver;
 import org.springframework.data.relational.core.dialect.Dialect;
 import org.sqlite.SQLiteDataSource;
 
