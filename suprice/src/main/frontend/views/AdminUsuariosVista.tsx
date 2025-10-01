@@ -10,6 +10,7 @@ import { PasswordField } from '@vaadin/react-components/PasswordField.js';
 import { Select } from '@vaadin/react-components/Select.js';
 import { Notification } from '@vaadin/react-components/Notification.js';
 import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
+import { MENSAJE_ERROR_CONEXION, obtenerMensajeDesdeError, obtenerMensajeDesdeRespuesta } from '../utilidades/mensajesError';
 
 interface UsuarioDTO {
   nombreUsuario: string;
@@ -36,13 +37,21 @@ const AdminUsuariosVista = () => {
     cargarUsuarios();
   }, [usuario, navigate]);
 
+  const mostrarNotificacion = (mensaje: string) =>
+    Notification.show(mensaje, { duration: 3000, position: 'bottom-center' });
+
   const cargarUsuarios = async () => {
-    const respuesta = await fetch('/api/usuarios', { credentials: 'include' });
-    if (respuesta.ok) {
+    try {
+      const respuesta = await fetch('/api/usuarios', { credentials: 'include' });
+      if (!respuesta.ok) {
+        const mensaje = await obtenerMensajeDesdeRespuesta(respuesta, 'No fue posible obtener los usuarios');
+        mostrarNotificacion(mensaje);
+        return;
+      }
       const datos = (await respuesta.json()) as UsuarioDTO[];
       setUsuarios(datos);
-    } else {
-      Notification.show('No fue posible obtener los usuarios', { duration: 3000, position: 'bottom-center' });
+    } catch (error) {
+      mostrarNotificacion(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
     }
   };
 
@@ -50,14 +59,20 @@ const AdminUsuariosVista = () => {
     if (!window.confirm(`¿Eliminar al usuario ${nombre}?`)) {
       return;
     }
-    const respuesta = await fetch(`/api/usuarios/${encodeURIComponent(nombre)}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    });
-    const mensaje = await respuesta.json().catch(() => ({ mensaje: 'No fue posible eliminar al usuario' }));
-    Notification.show(mensaje.mensaje ?? 'Operación realizada', { duration: 3000, position: 'bottom-center' });
-    if (respuesta.ok) {
-      cargarUsuarios();
+    try {
+      const respuesta = await fetch(`/api/usuarios/${encodeURIComponent(nombre)}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (respuesta.ok) {
+        mostrarNotificacion('Usuario eliminado correctamente');
+        cargarUsuarios();
+        return;
+      }
+      const mensaje = await obtenerMensajeDesdeRespuesta(respuesta, 'No fue posible eliminar al usuario');
+      mostrarNotificacion(mensaje);
+    } catch (error) {
+      mostrarNotificacion(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
     }
   };
 
@@ -67,25 +82,32 @@ const AdminUsuariosVista = () => {
       return;
     }
     setCargando(true);
-    const respuesta = await fetch('/api/usuarios', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        nombreUsuario: nuevoUsuario.nombre.trim(),
-        contrasena: nuevoUsuario.contrasena.trim(),
-        rol: nuevoUsuario.rol
-      })
-    });
-    const mensaje = await respuesta.json().catch(() => ({ mensaje: 'No fue posible crear el usuario' }));
-    Notification.show(mensaje.mensaje ?? 'Operación completada', { duration: 3000, position: 'bottom-center' });
-    setCargando(false);
-    if (respuesta.ok || respuesta.status === 201) {
-      setDialogoAbierto(false);
-      setNuevoUsuario({ nombre: '', contrasena: '', rol: 'CONSULTA' });
-      cargarUsuarios();
+    try {
+      const respuesta = await fetch('/api/usuarios', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          nombreUsuario: nuevoUsuario.nombre.trim(),
+          contrasena: nuevoUsuario.contrasena.trim(),
+          rol: nuevoUsuario.rol
+        })
+      });
+      if (respuesta.ok || respuesta.status === 201) {
+        mostrarNotificacion('Usuario creado correctamente');
+        setDialogoAbierto(false);
+        setNuevoUsuario({ nombre: '', contrasena: '', rol: 'CONSULTA' });
+        cargarUsuarios();
+        return;
+      }
+      const mensaje = await obtenerMensajeDesdeRespuesta(respuesta, 'No fue posible crear el usuario');
+      mostrarNotificacion(mensaje);
+    } catch (error) {
+      mostrarNotificacion(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
+    } finally {
+      setCargando(false);
     }
   };
 

@@ -221,6 +221,8 @@ mvn spring-boot:run
 ```
 Esto levanta el backend en `http://localhost:8080` y el frontend integrado de Hilla. Para desarrollo frontend autónomo puedes ejecutar `npm run dev` en otra terminal.
 
+> 💡 **Importante:** el frontend en modo desarrollo utiliza un proxy hacia `http://localhost:8080`. Si el backend no está en ejecución, las peticiones a `/api/...` devolverán errores 500 o `ECONNREFUSED`. Asegúrate de mantener `mvn spring-boot:run` activo mientras pruebas la interfaz con `npm run dev`.
+
 ## Uso de la aplicación
 1. Accede a `http://localhost:8080` y autentícate con un usuario válido (el administrador inicial es `admin` / `]mYMI&Rep711`, se recomienda cambiarlo).
 2. Selecciona el sistema (SAE o Caja), luego la versión detectada y la empresa.
