@@ -6,16 +6,22 @@ import LoginVista from './views/LoginVista';
 import PrincipalVista from './views/PrincipalVista';
 import AdminUsuariosVista from './views/AdminUsuariosVista';
 import { SesionContexto, UsuarioSesion } from './componentes/ContextoSesion';
+import { obtenerMensajeDesdeError } from './utilidades/mensajesError';
 
 const consultarSesionActual = async (): Promise<UsuarioSesion | undefined> => {
-  const respuesta = await fetch('/api/autenticacion/usuario-actual', {
-    credentials: 'include'
-  });
-  if (!respuesta.ok) {
+  try {
+    const respuesta = await fetch('/api/autenticacion/usuario-actual', {
+      credentials: 'include'
+    });
+    if (!respuesta.ok) {
+      return undefined;
+    }
+    const datos = await respuesta.json();
+    return datos ?? undefined;
+  } catch (error) {
+    console.warn(obtenerMensajeDesdeError(error, 'No se pudo consultar la sesión actual.'));
     return undefined;
   }
-  const datos = await respuesta.json();
-  return datos ?? undefined;
 };
 
 const App = () => {

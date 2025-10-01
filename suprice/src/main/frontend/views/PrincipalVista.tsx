@@ -11,6 +11,7 @@ import { VerticalLayout } from '@vaadin/react-components/VerticalLayout.js';
 import { Icon } from '@vaadin/react-components/Icon.js';
 
 import '@vaadin/icons/vaadin-icons.js';
+import { MENSAJE_ERROR_CONEXION, obtenerMensajeDesdeError, obtenerMensajeDesdeRespuesta } from '../utilidades/mensajesError';
 
 interface VersionSistemaDTO {
   nombre: string;
@@ -62,6 +63,9 @@ const PrincipalVista = () => {
   const [producto, setProducto] = useState<ProductoConsultadoDTO | undefined>(undefined);
   const temporizadorRef = useRef<number | undefined>(undefined);
 
+  const mostrarNotificacion = (mensaje: string) =>
+    Notification.show(mensaje, { position: 'bottom-center', duration: 3000 });
+
   useEffect(() => {
     return () => {
       if (temporizadorRef.current) {
@@ -77,20 +81,27 @@ const PrincipalVista = () => {
   }, [usuario, navigate]);
 
   useEffect(() => {
-    fetch('/api/configuracion/sistemas', { credentials: 'include' })
-      .then((respuesta) => {
+    const cargarSistemas = async () => {
+      try {
+        const respuesta = await fetch('/api/configuracion/sistemas', { credentials: 'include' });
         if (!respuesta.ok) {
-          throw new Error('No fue posible obtener los sistemas disponibles.');
+          const mensaje = await obtenerMensajeDesdeRespuesta(
+            respuesta,
+            'No fue posible obtener los sistemas disponibles.'
+          );
+          throw new Error(mensaje);
         }
-        return respuesta.json();
-      })
-      .then((datos: TipoSistemaAspel[]) => {
+        const datos = (await respuesta.json()) as TipoSistemaAspel[];
         setSistemas(datos);
         if (datos.length > 0) {
           setSistemaSeleccionado(datos[0]);
         }
-      })
-      .catch((error) => Notification.show(error.message, { position: 'bottom-center', duration: 3000 }));
+      } catch (error) {
+        mostrarNotificacion(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
+      }
+    };
+
+    cargarSistemas();
   }, []);
 
   useEffect(() => {
@@ -99,20 +110,26 @@ const PrincipalVista = () => {
       setVersionSeleccionada(undefined);
       return;
     }
-    fetch(`/api/configuracion/versiones?sistema=${sistemaSeleccionado}`, { credentials: 'include' })
-      .then((respuesta) => {
+    const cargarVersiones = async () => {
+      try {
+        const respuesta = await fetch(`/api/configuracion/versiones?sistema=${sistemaSeleccionado}`, {
+          credentials: 'include'
+        });
         if (!respuesta.ok) {
-          throw new Error('No fue posible obtener las versiones.');
+          const mensaje = await obtenerMensajeDesdeRespuesta(respuesta, 'No fue posible obtener las versiones.');
+          throw new Error(mensaje);
         }
-        return respuesta.json();
-      })
-      .then((datos: VersionSistemaDTO[]) => {
+        const datos = (await respuesta.json()) as VersionSistemaDTO[];
         setVersiones(datos);
         if (datos.length > 0) {
           setVersionSeleccionada(datos[0]);
         }
-      })
-      .catch((error) => Notification.show(error.message, { position: 'bottom-center', duration: 3000 }));
+      } catch (error) {
+        mostrarNotificacion(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
+      }
+    };
+
+    cargarVersiones();
   }, [sistemaSeleccionado]);
 
   useEffect(() => {
@@ -121,22 +138,31 @@ const PrincipalVista = () => {
       setEmpresaSeleccionada(undefined);
       return;
     }
-    fetch(`/api/configuracion/empresas?sistema=${sistemaSeleccionado}&rutaVersion=${encodeURIComponent(versionSeleccionada.ruta)}`, {
-      credentials: 'include'
-    })
-      .then((respuesta) => {
+    const cargarEmpresas = async () => {
+      try {
+        const respuesta = await fetch(
+          `/api/configuracion/empresas?sistema=${sistemaSeleccionado}&rutaVersion=${encodeURIComponent(
+            versionSeleccionada.ruta
+          )}`,
+          {
+            credentials: 'include'
+          }
+        );
         if (!respuesta.ok) {
-          throw new Error('No fue posible cargar las empresas.');
+          const mensaje = await obtenerMensajeDesdeRespuesta(respuesta, 'No fue posible cargar las empresas.');
+          throw new Error(mensaje);
         }
-        return respuesta.json();
-      })
-      .then((datos: EmpresaSistemaDTO[]) => {
+        const datos = (await respuesta.json()) as EmpresaSistemaDTO[];
         setEmpresas(datos);
         if (datos.length > 0) {
           setEmpresaSeleccionada(datos[0]);
         }
-      })
-      .catch((error) => Notification.show(error.message, { position: 'bottom-center', duration: 3000 }));
+      } catch (error) {
+        mostrarNotificacion(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
+      }
+    };
+
+    cargarEmpresas();
   }, [versionSeleccionada, sistemaSeleccionado]);
 
   const limpiarProducto = () => {
@@ -161,36 +187,49 @@ const PrincipalVista = () => {
       Notification.show('Ingrese un código de producto.', { duration: 2000, position: 'bottom-center' });
       return;
     }
-    const respuesta = await fetch('/api/productos/consultar', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        sistema: sistemaSeleccionado,
-        rutaVersion: versionSeleccionada.ruta,
-        rutaEmpresa: empresaSeleccionada.ruta,
-        sufijoTablas: empresaSeleccionada.sufijoTablas,
-        codigoProducto: codigoProducto.trim(),
-        incluirImpuestos
-      })
-    });
-    if (respuesta.ok) {
+    try {
+      const respuesta = await fetch('/api/productos/consultar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          sistema: sistemaSeleccionado,
+          rutaVersion: versionSeleccionada.ruta,
+          rutaEmpresa: empresaSeleccionada.ruta,
+          sufijoTablas: empresaSeleccionada.sufijoTablas,
+          codigoProducto: codigoProducto.trim(),
+          incluirImpuestos
+        })
+      });
+      if (!respuesta.ok) {
+        const mensaje = await obtenerMensajeDesdeRespuesta(
+          respuesta,
+          respuesta.status >= 500 ? MENSAJE_ERROR_CONEXION : 'No se localizaron resultados'
+        );
+        mostrarNotificacion(mensaje);
+        limpiarProducto();
+        return;
+      }
       const datos = (await respuesta.json()) as ProductoConsultadoDTO;
       setProducto(datos);
       programarLimpieza();
-    } else {
-      const error = await respuesta.json().catch(() => ({ mensaje: 'Producto no encontrado' }));
-      Notification.show(error.mensaje ?? 'No se localizaron resultados', { duration: 3000, position: 'bottom-center' });
+    } catch (error) {
+      mostrarNotificacion(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
       limpiarProducto();
     }
   };
 
   const cerrarSesion = async () => {
-    await fetch('/api/autenticacion/cerrar', { method: 'POST', credentials: 'include' });
-    actualizarUsuario(undefined);
-    navigate('/');
+    try {
+      await fetch('/api/autenticacion/cerrar', { method: 'POST', credentials: 'include' });
+    } catch (error) {
+      console.warn(obtenerMensajeDesdeError(error, MENSAJE_ERROR_CONEXION));
+    } finally {
+      actualizarUsuario(undefined);
+      navigate('/');
+    }
   };
 
   const esAdmin = usuario?.rol === 'ADMINISTRADOR';
