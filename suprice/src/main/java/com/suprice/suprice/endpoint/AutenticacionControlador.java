@@ -64,19 +64,35 @@ public class AutenticacionControlador {
 
         @GetMapping("/usuario-actual")
         public ResponseEntity<?> obtenerUsuarioActual(HttpSession session) {
-                UsuarioSesion sesion = (UsuarioSesion) session.getAttribute(SESION_USUARIO);
-                if (sesion == null) {
+                Object atributoSesion = session.getAttribute(SESION_USUARIO);
+                if (!(atributoSesion instanceof UsuarioSesion sesion)) {
+                        if (atributoSesion != null) {
+                                session.removeAttribute(SESION_USUARIO);
+                        }
                         return ResponseEntity.ok().body(null);
                 }
                 return ResponseEntity.ok(new UsuarioDTO(sesion.getNombreUsuario(), sesion.getRol()));
         }
 
         public static boolean esAdministrador(HttpSession session) {
-                UsuarioSesion sesion = (UsuarioSesion) session.getAttribute(SESION_USUARIO);
-                return sesion != null && sesion.getRol() == RolUsuario.ADMINISTRADOR;
+                Object atributoSesion = session.getAttribute(SESION_USUARIO);
+                if (!(atributoSesion instanceof UsuarioSesion sesion)) {
+                        if (atributoSesion != null) {
+                                session.removeAttribute(SESION_USUARIO);
+                        }
+                        return false;
+                }
+                return sesion.getRol() == RolUsuario.ADMINISTRADOR;
         }
 
         public static Optional<UsuarioSesion> obtenerSesion(HttpSession session) {
-                return Optional.ofNullable((UsuarioSesion) session.getAttribute(SESION_USUARIO));
+                Object atributoSesion = session.getAttribute(SESION_USUARIO);
+                if (atributoSesion instanceof UsuarioSesion sesion) {
+                        return Optional.of(sesion);
+                }
+                if (atributoSesion != null) {
+                        session.removeAttribute(SESION_USUARIO);
+                }
+                return Optional.empty();
         }
 }
